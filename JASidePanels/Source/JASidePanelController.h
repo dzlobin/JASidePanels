@@ -119,6 +119,10 @@ typedef enum _JASidePanelState {
 // Default button to place in gestureViewControllers top viewController. Override in sublcass to change look of default button
 - (UIBarButtonItem *)leftButtonForCenterPanel;
 
+#pragma mark - Dim the view during animation
+
+- (void)dimCenterPanelAtFrame:(CGRect)currentFrame;
+
 #pragma mark - Nuts & Bolts
 
 // Current state of panels. Use KVO to monitor state changes

@@ -159,14 +159,19 @@
     
     [self _swapCenter:nil with:_centerPanel];
     [self.view bringSubviewToFront:self.centerPanelContainer];
+    
+    [self addObserver:self forKeyPath:@"centerPanelContainer.frame" options:NSKeyValueObservingOptionOld context:NULL];
+
 }
 
 - (void)viewDidUnload {
     [super viewDidUnload];
+    [self removeObserver:self forKeyPath:@"centerPanelContainer.frame"];
     self.tapView = nil;
     self.centerPanelContainer = nil;
     self.leftPanelContainer = nil;
     self.rightPanelContainer = nil;
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -188,6 +193,7 @@
     [self _layoutSidePanels];
     [self styleContainer:self.centerPanelContainer animate:YES duration:duration];
 }
+
 
 #pragma mark - State
 
@@ -783,6 +789,39 @@
         // view controllers have changed, need to replace the button
         [self _placeButtonForLeftPanel];
     }
+    if([keyPath isEqualToString:@"centerPanelContainer.frame"]) {
+        CGRect oldFrame = CGRectNull;
+        CGRect newFrame = CGRectNull;
+        if([change objectForKey:@"old"] != [NSNull null]) {
+            oldFrame = [[change objectForKey:@"old"] CGRectValue];
+        }
+        if([object valueForKeyPath:keyPath] != [NSNull null]) {
+            newFrame = [[object valueForKeyPath:keyPath] CGRectValue];
+        }
+        
+    //dim the center panel while we are animating it
+    [self dimCenterPanelAtFrame:newFrame];
+        
+    }
+}
+
+#pragma mark - Dim the view during animation
+
+- (void)dimCenterPanelAtFrame:(CGRect)currentFrame
+{
+    CGFloat alphaPercentage;
+    NSLog(@"frame is %@ and state frame is %@", NSStringFromCGRect(currentFrame), NSStringFromCGRect(_centerPanelRestingFrame));
+    if (currentFrame.origin.x > 0) {
+        alphaPercentage = ((currentFrame.origin.x * 100)/_leftFixedWidth);
+    }
+    else {
+        alphaPercentage = (((-1 *currentFrame.origin.x) * 100)/_rightFixedWidth);
+    }
+    if (alphaPercentage > 100.0)
+        alphaPercentage = 100.0;
+    alphaPercentage = 1.0 - (alphaPercentage/100) + .7;
+    NSLog(@"Alpha is %f", alphaPercentage);
+    self.centerPanelContainer.alpha = alphaPercentage;
 }
 
 #pragma mark - Public Methods
