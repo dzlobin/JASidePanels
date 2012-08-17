@@ -789,7 +789,7 @@
         // view controllers have changed, need to replace the button
         [self _placeButtonForLeftPanel];
     }
-    if([keyPath isEqualToString:@"centerPanelContainer.frame"]) {
+    if ([keyPath isEqualToString:@"centerPanelContainer.frame"]) {
         CGRect oldFrame = CGRectNull;
         CGRect newFrame = CGRectNull;
         if([change objectForKey:@"old"] != [NSNull null]) {
@@ -810,17 +810,19 @@
 - (void)dimCenterPanelAtFrame:(CGRect)currentFrame
 {
     CGFloat alphaPercentage;
-    NSLog(@"frame is %@ and state frame is %@", NSStringFromCGRect(currentFrame), NSStringFromCGRect(_centerPanelRestingFrame));
+
     if (currentFrame.origin.x > 0) {
         alphaPercentage = ((currentFrame.origin.x * 100)/_leftFixedWidth);
     }
     else {
         alphaPercentage = (((-1 *currentFrame.origin.x) * 100)/_rightFixedWidth);
     }
+    
     if (alphaPercentage > 100.0)
         alphaPercentage = 100.0;
+    
+    //Needs a refactor, puts a lower limit of the alpha at .7
     alphaPercentage = 1.0 - (alphaPercentage/100) + .7;
-    NSLog(@"Alpha is %f", alphaPercentage);
     self.centerPanelContainer.alpha = alphaPercentage;
 }
 
