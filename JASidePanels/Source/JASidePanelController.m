@@ -128,7 +128,7 @@
     self.bounceDuration = 0.1f;
     self.bouncePercentage = 0.075f;
     self.panningLimitedToTopViewController = YES;
-    self.recognizesPanGesture = YES;
+    self.recognizesPanGesture = NO;
     self.allowLeftOverpan = YES;
     self.allowRightOverpan = YES;
     self.bounceOnSidePanelOpen = YES;
