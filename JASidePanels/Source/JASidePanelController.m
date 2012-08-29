@@ -823,7 +823,7 @@
     
     //Needs a refactor, puts a lower limit of the alpha at .7
     alphaPercentage = 1.0 - (alphaPercentage/100) + .7;
-    self.centerPanelContainer.alpha = alphaPercentage;
+    //self.centerPanelContainer.alpha = alphaPercentage;
 }
 
 #pragma mark - Public Methods
