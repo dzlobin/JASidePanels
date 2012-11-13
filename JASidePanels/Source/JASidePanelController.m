@@ -429,7 +429,6 @@
         CGPoint translate = [pan translationInView:self.centerPanelContainer];
         CGRect frame = _centerPanelRestingFrame;
         frame.origin.x += [self _correctMovement:translate.x];
-        NSLog(@"Frame is %@, leftgap %f, rightgao %f", NSStringFromCGRect(frame), self.leftFixedWidth, self.rightFixedWidth);
         if (frame.origin.x < 0) {
             if ((frame.origin.x * -1) > self.rightFixedWidth) {
                 frame.origin.x = self.rightFixedWidth * -1;
