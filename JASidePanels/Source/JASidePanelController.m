@@ -123,12 +123,12 @@
     self.style = JASidePanelSingleActive;
     self.leftGapPercentage = 0.8f;
     self.rightGapPercentage = 0.8f;
-    self.minimumMovePercentage = 0.15f;
+    self.minimumMovePercentage = 0.05f;
     self.maximumAnimationDuration = 0.2f;
-    self.bounceDuration = 0.1f;
+    self.bounceDuration = 0.2f;
     self.bouncePercentage = 0.075f;
     self.panningLimitedToTopViewController = YES;
-    self.recognizesPanGesture = NO;
+    self.recognizesPanGesture = YES;
     self.allowLeftOverpan = YES;
     self.allowRightOverpan = YES;
     self.bounceOnSidePanelOpen = YES;
@@ -183,8 +183,20 @@
     [self styleContainer:self.centerPanelContainer animate:NO duration:0.0f];
 }
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
-    return UIInterfaceOrientationIsPortrait(toInterfaceOrientation);
+//- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
+//    return UIInterfaceOrientationIsPortrait(toInterfaceOrientation);
+//}
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+
+- (NSUInteger)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskPortrait;
+}
+
+- (BOOL)shouldAutorotate{
+    return NO;
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
@@ -417,8 +429,20 @@
         CGPoint translate = [pan translationInView:self.centerPanelContainer];
         CGRect frame = _centerPanelRestingFrame;
         frame.origin.x += [self _correctMovement:translate.x];
+        NSLog(@"Frame is %@, leftgap %f, rightgao %f", NSStringFromCGRect(frame), self.leftFixedWidth, self.rightFixedWidth);
+        if (frame.origin.x < 0) {
+            if ((frame.origin.x * -1) > self.rightFixedWidth) {
+                frame.origin.x = self.rightFixedWidth * -1;
+            }
+        }
+        else
+        {
+            if (frame.origin.x > self.leftFixedWidth) {
+                frame.origin.x = self.leftFixedWidth;
+            }
+        }
         self.centerPanelContainer.frame = frame;
-        
+
         // if center panel has focus, make sure correct side panel is revealed
         if (self.state == JASidePanelCenterVisible) {
             if (frame.origin.x > 0.0f) {
