@@ -26,6 +26,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 #import "JASidePanelController.h"
+#import "FeedViewController.h"
 
 @interface JASidePanelController() {
     CGRect _centerPanelRestingFrame;		
@@ -132,6 +133,7 @@
     self.allowLeftOverpan = YES;
     self.allowRightOverpan = YES;
     self.bounceOnSidePanelOpen = YES;
+    self.limitPanToLeftPanel = NO;
 }
 
 #pragma mark - UIViewController
@@ -400,6 +402,22 @@
     } else if ([gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
         UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *)gestureRecognizer;
         CGPoint translate = [pan translationInView:self.centerPanelContainer];
+        
+        if ([[(UINavigationController *)[(UITabBarController *)self.centerPanel selectedViewController] topViewController] isKindOfClass:[FeedViewController class]])
+            self.limitPanToLeftPanel = NO;
+        else
+            self.limitPanToLeftPanel = YES;
+        
+        // disable pans to the right panel, if the property is set
+        if (self.limitPanToLeftPanel) {
+            CGRect frame = _centerPanelRestingFrame;
+            frame.origin.x += [self _correctMovement:translate.x];
+            if (frame.origin.x < 0) {
+                return NO;
+            }
+        }
+
+        
         BOOL possible = translate.x != 0 && ((fabsf(translate.y) / fabsf(translate.x)) < 1.0f);
         if (possible && ((translate.x > 0 && self.leftPanel) || (translate.x < 0 && self.rightPanel))) {
             return YES;
@@ -427,8 +445,24 @@
         }
         
         CGPoint translate = [pan translationInView:self.centerPanelContainer];
+
         CGRect frame = _centerPanelRestingFrame;
         frame.origin.x += [self _correctMovement:translate.x];
+        NSLog(@"Translate is %@", NSStringFromCGPoint(frame.origin));
+
+        // a failsafe to disable pans to the left
+        // even though we check for this in gestureRecognizerShouldBegin, if the user pans left and then flicks right, they can open the right panel.
+        if ([[(UINavigationController *)[(UITabBarController *)self.centerPanel selectedViewController] topViewController] isKindOfClass:[FeedViewController class]])
+            self.limitPanToLeftPanel = NO;
+        else
+            self.limitPanToLeftPanel = YES;
+        
+        if (self.limitPanToLeftPanel) {
+            if (frame.origin.x < 0) {
+                frame.origin.x = 0;
+            }
+        }
+
         if (frame.origin.x < 0) {
             if ((frame.origin.x * -1) > self.rightFixedWidth) {
                 frame.origin.x = self.rightFixedWidth * -1;
